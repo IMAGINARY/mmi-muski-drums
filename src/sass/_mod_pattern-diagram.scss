@@ -11,7 +11,7 @@
       border: 1px solid colors.$c-white;
 
       &.active {
-        padding: 2px;
+        padding: 0.125rem;
         &::after {
           content: '';
           display: block;
