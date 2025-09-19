@@ -14,7 +14,8 @@ to build the project. The built files are in the `dist` directory.
 
 ## Configuration
 
-The configuration files are in the `config` directory.
+The configuration files are in the `config` directory. These typically shouldn't be modified
+when installing the app.
 
 You can override any of the configuration keys through a `settings.yml` file in the root directory.
 
