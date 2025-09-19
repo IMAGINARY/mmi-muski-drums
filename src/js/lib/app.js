@@ -41,7 +41,8 @@ export default class MuskiDrumsApp {
       this.drumsManager.sampler,
       this.drumsManager.createToneTransport(),
       {
-        lang: this.config.app.lang,
+        lang: this.config.i18n.defaultLanguage,
+        strings: this.config.i18n.strings,
         drums: this.config.drumMachine.drums.map((d) => d.id),
         tempo: this.config.drumMachine.defaultTempo,
         withRandom: this.config.drumMachine.withRandomGenerator,
@@ -68,28 +69,28 @@ export default class MuskiDrumsApp {
     this.aiButton = document.createElement('button');
     this.aiButton.type = 'button';
     this.aiButton.classList.add('btn', 'btn-light', 'btn-lg', 'btn-control', 'btn-gen-n-play', 'btn-ai', 'me-3');
-    this.aiButton.textContent = 'avec IA';
+    this.aiButton.textContent = this.getString('generate-ai-button');
     this.aiButton.addEventListener('click', () => { this.handleAiButton(); });
     controls.appendChild(this.aiButton);
 
     this.randomButton = document.createElement('button');
     this.randomButton.type = 'button';
     this.randomButton.classList.add('btn', 'btn-light', 'btn-lg', 'btn-control', 'btn-gen-n-play', 'btn-random', 'me-3');
-    this.randomButton.textContent = 'aléatoire';
+    this.randomButton.textContent = this.getString('generate-rnd-button');
     this.randomButton.addEventListener('click', () => { this.handleRandomButton(); });
     controls.appendChild(this.randomButton);
 
     this.stopButton = document.createElement('button');
     this.stopButton.type = 'button';
     this.stopButton.classList.add('btn', 'btn-light', 'btn-lg', 'btn-round', 'btn-control', 'btn-stop', 'me-3');
-    this.stopButton.textContent = 'Stop';
+    this.stopButton.textContent = this.getString('stop-button');
     this.stopButton.addEventListener('click', () => { this.handleStopButton(); });
     controls.appendChild(this.stopButton);
 
     const clearButton = document.createElement('button');
     clearButton.type = 'button';
     clearButton.classList.add('btn', 'btn-light', 'btn-lg', 'btn-round', 'btn-control', 'btn-clear');
-    clearButton.textContent = 'Clear';
+    clearButton.textContent = this.getString('clear-button');
     clearButton.addEventListener('click', () => { this.handleClearButton(); });
     controls.appendChild(clearButton);
 
@@ -106,7 +107,7 @@ export default class MuskiDrumsApp {
       exampleContainer.classList.add('muski-drums-example');
       const title = document.createElement('div');
       title.classList.add('title');
-      title.textContent = example?.title?.[this.config.app.lang] || example.title.en || '';
+      title.textContent = example?.title?.[this.config.i18n.defaultLanguage] || example.title.en || '';
       exampleContainer.append(title);
 
       const diagram = new PatternDiagram(
@@ -120,6 +121,10 @@ export default class MuskiDrumsApp {
     });
 
     this.element.append(container);
+  }
+
+  getString(id) {
+    return this.config.i18n.strings?.[this.config.i18n.defaultLanguage || 'en']?.[id];
   }
 
   stopDrumMachine() {

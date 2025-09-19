@@ -1,0 +1,14 @@
+drums:
+  kick: Grosse caisse
+  snare: Caisse claire
+  hihatClosed: Charley fermé
+  hihatOpen: Charley ouvert
+  tomLow: Tom basse
+  tomMid: Tom médium
+  tomHigh: Tom aigu
+  crash: Cymbale crash
+  ride: Cymbale ride
+generate-ai-button: avec IA
+generate-rnd-button: aléatoire
+stop-button: arrêt
+clear-button: effacer
