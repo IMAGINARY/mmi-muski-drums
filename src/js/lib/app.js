@@ -133,12 +133,19 @@ export default class MuskiDrumsApp {
     this.drumMachine.sequencer.clear();
   }
 
-  handleAiButton() {
+  async handleAiButton() {
     if (!this.drumMachine) {
       throw new Error('Drum machine is not initialized.');
     }
+    // Do the first generation before starting the drum machine,
+    // otherwise the audio skips during the first few steps.
+    if (!this.drumMachine.isPlaying()) {
+      await this.drumMachine.generateUsingAI();
+      this.shouldRegeneratePattern = false;
+    } else {
+      this.shouldRegeneratePattern = true;
+    }
     this.generationMode = 'ai';
-    this.shouldRegeneratePattern = true;
     this.loopsPlayedSinceLastInput = 0;
     if (!this.drumMachine.isPlaying()) {
       this.drumMachine.start();
@@ -182,12 +189,10 @@ export default class MuskiDrumsApp {
 
   handleDrumMachineStep(step) {
     if (step === 0) {
-      this.currentLoopPlayCount += 1;
       if (this.loopsPlayedSinceLastInput >= this.config.app.maxIdleLoops) {
         this.stopDrumMachine();
       } else {
         this.loopsPlayedSinceLastInput += 1;
-
         if ((this.shouldRegeneratePattern || this.currentLoopPlayCount >= 2)) {
           if (this.generationMode === 'ai') {
             this.drumMachine.generateUsingAI();
@@ -195,7 +200,9 @@ export default class MuskiDrumsApp {
             this.drumMachine.generateUsingRandomAlgorithm();
           }
           this.shouldRegeneratePattern = false;
-          this.currentLoopPlayCount = 0;
+          this.currentLoopPlayCount = 1;
+        } else {
+          this.currentLoopPlayCount += 1;
         }
       }
     }
