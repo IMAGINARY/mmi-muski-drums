@@ -7,3 +7,5 @@ app:
   # Number of seconds after which, unless there is user input or the drum machine is playing,
   # the drum machine will be cleared.
   idleClearSeconds: 30
+  # Number of seconds after which, unless there is user input, the exhibit will fully reload.
+  idleReloadSeconds: 900

@@ -5,6 +5,7 @@ import MuskiDrums from '../../../vendor/muski-drums/src/js/muski-drums';
 import PatternDiagram from './pattern-diagram';
 import Explainer from './explainer';
 import howDoesItWorkContent from '../../../content/how-does-it-work.md';
+import IdleMonitor from './idle-monitor';
 
 export default class MuskiDrumsApp {
   constructor(config) {
@@ -20,15 +21,17 @@ export default class MuskiDrumsApp {
     if (this.config.app.theme) {
       this.$element.addClass(`theme-${this.config.app.theme}`);
     }
-    this.idleTimeout = null;
     if (this.config.app.idleClearSeconds && this.config.app.idleClearSeconds > 0) {
-      this.setIdleTimeout();
-      $(document).on('mousemove keydown touchstart', () => {
-        // Only reset the idle timeout if it is set
-        if (this.idleTimeout) {
-          this.setIdleTimeout();
-        }
-      });
+      this.idleMonitor = new IdleMonitor(
+        this.config.app.idleClearSeconds,
+        this.handleIdleTimeout.bind(this)
+      );
+    }
+    if (this.config.app.idleReloadSeconds && this.config.app.idleReloadSeconds > 0) {
+      this.reloadIdleMonitor = new IdleMonitor(
+        this.config.app.idleReloadSeconds,
+        () => { window.location.reload(); },
+      );
     }
   }
 
@@ -151,6 +154,10 @@ export default class MuskiDrumsApp {
       .appendTo(this.$explainerButtonAligner);
   }
 
+  closeExplainer() {
+    this.$element.removeClass('with-explainer');
+  }
+
   getString(id) {
     return this.config.i18n.strings?.[this.config.i18n.defaultLanguage || 'en']?.[id];
   }
@@ -216,7 +223,7 @@ export default class MuskiDrumsApp {
 
   handleDrumMachineStart() {
     this.currentLoopPlayCount = 0;
-    this.stopIdleTimeout();
+    this.stopIdleMonitoring();
     this.updateControls();
   }
 
@@ -242,7 +249,7 @@ export default class MuskiDrumsApp {
   }
 
   handleDrumMachineStop() {
-    this.setIdleTimeout();
+    this.startIdleMonitoring();
     this.updateControls();
   }
 
@@ -266,22 +273,19 @@ export default class MuskiDrumsApp {
     }
   }
 
-  setIdleTimeout() {
-    this.stopIdleTimeout();
-    this.idleTimeout = setTimeout(() => {
-      this.handleIdleTimeout();
-    }, this.config.app.idleClearSeconds * 1000);
+  startIdleMonitoring() {
+    this.idleMonitor?.start();
+    this.reloadIdleMonitor?.start();
   }
 
-  stopIdleTimeout() {
-    if (this.idleTimeout) {
-      clearTimeout(this.idleTimeout);
-      this.idleTimeout = null;
-    }
+  stopIdleMonitoring() {
+    this.idleMonitor?.stop();
+    this.reloadIdleMonitor?.stop();
   }
 
   handleIdleTimeout() {
     this.stopDrumMachine();
     this.clearSequencer();
+    this.closeExplainer();
   }
 }
