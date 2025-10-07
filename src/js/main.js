@@ -50,11 +50,11 @@ import AppScaler from './helpers-web/app-scaler';
       throw new Error(`Error loading translations: ${err.message}`);
     });
 
-    const containers = document.querySelectorAll('[data-component=MuskiDrumsApp]');
-    if (containers.length > 0) {
+    const $containers = $(document).find('[data-component=MuskiDrumsApp]');
+    if ($containers.length > 0) {
       const app = new MuskiDrumsApp(config);
-      const scaler = new AppScaler(app.element);
-      containers[0].appendChild(scaler.element);
+      const scaler = new AppScaler(app.$element);
+      $($containers[0]).append(scaler.$element);
       await app.init();
       scaler.refresh();
     }

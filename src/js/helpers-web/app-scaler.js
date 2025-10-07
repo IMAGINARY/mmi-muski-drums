@@ -5,13 +5,13 @@
  * It preserves the aspect ratio of the app element and ensures that it is centered.
  */
 export default class AppScaler {
-  constructor(appElement) {
-    this.appElement = appElement;
-    this.element = document.createElement('div');
-    this.element.classList.add('app-scaler');
-    this.element.append(this.appElement);
+  constructor($appElement) {
+    this.$appElement = $appElement;
+    this.$element = $('<div></div>')
+      .addClass('app-scaler');
+    this.$element.append(this.$appElement);
 
-    window.addEventListener('resize', this.handleResize.bind(this));
+    $(window).on('resize', this.handleResize.bind(this));
     this.handleResize();
   }
 
@@ -19,20 +19,22 @@ export default class AppScaler {
    * Refresh the app scaler.
    */
   handleResize() {
-    const appWidth = this.appElement.offsetWidth;
-    const appHeight = this.appElement.offsetHeight;
-    const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight;
+    const appWidth = this.$appElement.outerWidth();
+    const appHeight = this.$appElement.outerHeight();
+    const viewportWidth = $(window).width();
+    const viewportHeight = $(window).height();
 
     // Calculate the scale factor
     const scaleFactor = Math.min(viewportWidth / appWidth, viewportHeight / appHeight);
 
-    // Set the scale factor and center the app element
-    this.element.style.transform = `scale(${scaleFactor})`;
-    this.element.style.transformOrigin = 'top left';
-    this.element.style.left = `${(viewportWidth - appWidth * scaleFactor) / 2}px`;
-    this.element.style.top = `${(viewportHeight - appHeight * scaleFactor) / 2}px`;
-    this.element.style.position = 'absolute';
+    // Set the scale factor and center the app element using jQuery
+    this.$element.css({
+      transform: `scale(${scaleFactor})`,
+      transformOrigin: 'top left',
+      left: `${Math.round((viewportWidth - appWidth * scaleFactor) / 2)}px`,
+      top: `${Math.round((viewportHeight - appHeight * scaleFactor) / 2)}px`,
+      position: 'absolute',
+    });
   }
 
   refresh() {

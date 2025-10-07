@@ -3,6 +3,8 @@ import MuskiDrumsManager from '../../../vendor/muski-drums/src/js/muski-drums-ma
 // eslint-disable-next-line import/no-relative-packages
 import MuskiDrums from '../../../vendor/muski-drums/src/js/muski-drums';
 import PatternDiagram from './pattern-diagram';
+import Explainer from './explainer';
+import howDoesItWorkContent from '../../../content/how-does-it-work.md';
 
 export default class MuskiDrumsApp {
   constructor(config) {
@@ -13,10 +15,10 @@ export default class MuskiDrumsApp {
     this.currentLoopPlayCount = 0;
     this.shouldRegeneratePattern = false;
     this.loopsPlayedSinceLastInput = 0;
-    this.element = document.createElement('div');
-    this.element.classList.add('muski-drums-app');
+    this.$element = $('<div></div>')
+      .addClass('muski-drums-app');
     if (this.config.app.theme) {
-      this.element.classList.add(`theme-${this.config.app.theme}`);
+      this.$element.addClass(`theme-${this.config.app.theme}`);
     }
     this.idleTimeout = null;
     if (this.config.app.idleClearSeconds && this.config.app.idleClearSeconds > 0) {
@@ -62,65 +64,91 @@ export default class MuskiDrumsApp {
     this.drumMachine.events.on('stop', this.handleDrumMachineStop.bind(this));
     this.drumMachine.sequencer.events.on('update', this.handleSequenceUpdate.bind(this));
 
-    this.element.append(this.drumMachine.$element[0]);
-    const controls = document.createElement('div');
-    controls.classList.add('muski-drums-app-controls');
+    const drumPane = $('<div></div>')
+      .addClass('muski-drums-pane');
+    this.$element.append(drumPane);
 
-    this.aiButton = document.createElement('button');
-    this.aiButton.type = 'button';
-    this.aiButton.classList.add('btn', 'btn-light', 'btn-lg', 'btn-control', 'btn-gen-n-play', 'btn-ai', 'me-3');
-    this.aiButton.textContent = this.getString('generate-ai-button');
-    this.aiButton.addEventListener('click', () => { this.handleAiButton(); });
-    controls.appendChild(this.aiButton);
+    drumPane.append(this.drumMachine.$element);
+    const $controls = $('<div></div>')
+      .addClass('muski-drums-app-controls');
 
-    this.randomButton = document.createElement('button');
-    this.randomButton.type = 'button';
-    this.randomButton.classList.add('btn', 'btn-light', 'btn-lg', 'btn-control', 'btn-gen-n-play', 'btn-random', 'me-3');
-    this.randomButton.textContent = this.getString('generate-rnd-button');
-    this.randomButton.addEventListener('click', () => { this.handleRandomButton(); });
-    controls.appendChild(this.randomButton);
+    this.$aiButton = $('<button></button>')
+      .attr('type', 'button')
+      .addClass(['btn', 'btn-light', 'btn-lg', 'btn-control', 'btn-gen-n-play', 'btn-ai', 'me-3'])
+      .text(this.getString('generate-ai-button'))
+      .on('click', () => { this.handleAiButton(); })
+      .appendTo($controls);
 
-    this.stopButton = document.createElement('button');
-    this.stopButton.type = 'button';
-    this.stopButton.classList.add('btn', 'btn-light', 'btn-lg', 'btn-round', 'btn-control', 'btn-stop', 'me-3');
-    this.stopButton.textContent = this.getString('stop-button');
-    this.stopButton.addEventListener('click', () => { this.handleStopButton(); });
-    controls.appendChild(this.stopButton);
+    this.$randomButton = $('<button></button>')
+      .attr('type', 'button')
+      .addClass(['btn', 'btn-light', 'btn-lg', 'btn-control', 'btn-gen-n-play', 'btn-random', 'me-3'])
+      .text(this.getString('generate-rnd-button'))
+      .on('click', () => { this.handleRandomButton(); })
+      .appendTo($controls);
 
-    const clearButton = document.createElement('button');
-    clearButton.type = 'button';
-    clearButton.classList.add('btn', 'btn-light', 'btn-lg', 'btn-round', 'btn-control', 'btn-clear');
-    clearButton.textContent = this.getString('clear-button');
-    clearButton.addEventListener('click', () => { this.handleClearButton(); });
-    controls.appendChild(clearButton);
+    this.$stopButton = $('<button></button>')
+      .attr('type', 'button')
+      .addClass(['btn', 'btn-light', 'btn-lg', 'btn-round', 'btn-control', 'btn-stop', 'me-3'])
+      .text(this.getString('stop-button'))
+      .on('click', () => { this.handleStopButton(); })
+      .appendTo($controls);
 
-    this.element.appendChild(controls);
+    this.$clearButton = $('<button></button>')
+      .attr('type', 'button')
+      .addClass(['btn', 'btn-light', 'btn-lg', 'btn-round', 'btn-control', 'btn-clear'])
+      .text(this.getString('clear-button'))
+      .on('click', () => { this.handleClearButton(); })
+      .appendTo($controls);
+
+    drumPane.append($controls);
     this.initExamples();
+    this.initExplainer();
   }
 
   initExamples() {
-    const container = document.createElement('div');
-    container.classList.add('muski-drums-examples');
+    $('<div></div>')
+      .addClass('muski-drums-examples')
+      .append(
+        this.config?.examples?.map((example) => (
+          $('<div></div>')
+            .addClass('muski-drums-example')
+            .append(
+              $('<div></div>')
+                .addClass('title')
+                .text(example?.title?.[this.config.i18n.defaultLanguage] || example.title.en || '')
+            )
+            .append(
+              PatternDiagram.createElement(example.rows, example.cols, example.pattern)
+            )
+        ))
+      )
+      .appendTo(this.$element);
+  }
 
-    this.config?.examples?.forEach((example) => {
-      const exampleContainer = document.createElement('div');
-      exampleContainer.classList.add('muski-drums-example');
-      const title = document.createElement('div');
-      title.classList.add('title');
-      title.textContent = example?.title?.[this.config.i18n.defaultLanguage] || example.title.en || '';
-      exampleContainer.append(title);
+  initExplainer() {
+    this.explainer = new Explainer(howDoesItWorkContent);
+    this.$element.append(this.explainer.$element);
 
-      const diagram = new PatternDiagram(
-        example.rows,
-        example.cols,
-        example.pattern
-      );
-      exampleContainer.append(diagram.element);
+    this.$explainerButtonAligner = $('<div></div>')
+      .addClass('explainer-button-aligner')
+      .appendTo(this.$element);
 
-      container.append(exampleContainer);
-    });
-
-    this.element.append(container);
+    this.$explainerButton = $('<button></button>')
+      .attr('type', 'button')
+      .addClass(['btn', 'btn-outline', 'btn-lg', 'btn-explainer'])
+      .on('click', () => {
+        this.$element.toggleClass('with-explainer');
+      })
+      .append(
+        $('<span></span>')
+          .addClass('open-text')
+          .html(this.getString('how-does-it-work-button'))
+      )
+      .append(
+        $('<span></span>')
+          .addClass('close-icon')
+      )
+      .appendTo(this.$explainerButtonAligner);
   }
 
   getString(id) {
@@ -227,14 +255,14 @@ export default class MuskiDrumsApp {
 
   updateControls() {
     if (this.drumMachine.isPlaying() && this.generationMode === 'ai') {
-      this.aiButton.classList.add('active');
-      this.randomButton.classList.remove('active');
+      this.$aiButton.addClass('active');
+      this.$randomButton.removeClass('active');
     } else if (this.drumMachine.isPlaying() && this.generationMode === 'random') {
-      this.aiButton.classList.remove('active');
-      this.randomButton.classList.add('active');
+      this.$aiButton.removeClass('active');
+      this.$randomButton.addClass('active');
     } else {
-      this.aiButton.classList.remove('active');
-      this.randomButton.classList.remove('active');
+      this.$aiButton.removeClass('active');
+      this.$randomButton.removeClass('active');
     }
   }
 

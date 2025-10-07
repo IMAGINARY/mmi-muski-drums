@@ -7,4 +7,6 @@ Font Awesome 6.4.0 by @fontawesome - https://fontawesome.com
 
 The original files were modified as follows:
 
+- xmark-solid-full.svg: Changed fill color from black to white.
+
 

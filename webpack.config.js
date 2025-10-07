@@ -68,7 +68,7 @@ module.exports = {
               sassOptions: {
                 loadPaths: ['./node_modules'],
                 quietDeps: true,
-              }
+              },
             },
           },
         ],
@@ -76,6 +76,20 @@ module.exports = {
       {
         test: /\.(png|svg|jpg|jpeg|gif)$/i,
         type: 'asset/resource',
+      },
+      {
+        test: /\.(md)$/i,
+        use: [
+          {
+            loader: 'html-loader',
+          },
+          {
+            loader: path.resolve(__dirname, 'loaders/markdown-loader/main.cjs'),
+            options: {
+              breaks: false,
+            },
+          },
+        ],
       },
     ],
   },

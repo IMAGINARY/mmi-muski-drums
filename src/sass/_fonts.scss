@@ -4,11 +4,16 @@
 @include fontsource.faces(
   $metadata: RobotoCondensed.$metadata,
   $subsets: latin,
-  $weights: [400, 700],
+  $weights: [300, 400, 700],
   $styles: normal,
   $display: auto,
   $directory: "~@fontsource/roboto-condensed/files",
 );
+
+@mixin roboto-condensed-light {
+  font-family: 'Roboto Condensed', sans-serif;
+  font-weight: 300;
+}
 
 @mixin roboto-condensed-regular {
   font-family: 'Roboto Condensed', sans-serif;

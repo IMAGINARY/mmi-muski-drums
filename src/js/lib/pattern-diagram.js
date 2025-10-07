@@ -10,8 +10,8 @@ export default class PatternDiagram {
    *   values are considered part of the pattern.
    */
   constructor(rows, cols, pattern) {
-    this.element = document.createElement('div');
-    this.element.classList.add('pattern-diagram');
+    this.$element = $('<div>')
+      .addClass('pattern-diagram');
     this.rows = rows;
     this.cols = cols;
     this.pattern = pattern;
@@ -20,25 +20,30 @@ export default class PatternDiagram {
   }
 
   clear() {
-    this.element.innerHTML = '';
+    this.$element.empty();
   }
 
   render() {
     this.clear();
-    const table = document.createElement('table');
-    const tbody = document.createElement('tbody');
+    const $table = $('<table>');
+    const $tbody = $('<tbody>');
     for (let row = 0; row < this.rows; row += 1) {
-      const tr = document.createElement('tr');
+      const $tr = $('<tr>');
       for (let col = 0; col < this.cols; col += 1) {
-        const td = document.createElement('td');
-        tr.appendChild(td);
+        const $td = $('<td>');
         if (this.pattern[row] && this.pattern[row][col]) {
-          td.classList.add('active');
+          $td.addClass('active');
         }
+        $tr.append($td);
       }
-      tbody.appendChild(tr);
+      $tbody.append($tr);
     }
-    table.appendChild(tbody);
-    this.element.appendChild(table);
+    $table.append($tbody);
+    this.$element.append($table);
+  }
+
+  static createElement(rows, cols, pattern) {
+    const diagram = new PatternDiagram(rows, cols, pattern);
+    return diagram.$element;
   }
 }
