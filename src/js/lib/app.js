@@ -41,6 +41,7 @@ export default class MuskiDrumsApp {
       soundFontUrl: this.config.app.soundfontUrl,
     });
     await this.drumsManager.init();
+    await this.drumsManager.warmUpAI();
     this.drumMachine = new MuskiDrums(
       this.drumsManager.ai,
       this.drumsManager.sampler,
