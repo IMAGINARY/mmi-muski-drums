@@ -56,6 +56,7 @@ import AppScaler from './helpers-web/app-scaler';
       const scaler = new AppScaler(app.$element);
       $($containers[0]).append(scaler.$element);
       await app.init();
+      $('body').addClass('loaded');
       scaler.refresh();
     }
   } catch (err) {
